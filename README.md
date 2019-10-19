@@ -38,4 +38,4 @@ The Docker image has an entrypoint script which makes easy to pass the PSK keys,
                -e KEYS=<base64(id1:key1,id2:key2,...)> \
                <extra dtlsproxy arguments>
 
-In general, proxy will listen on port 5683 for DTLS packets.
+In general, proxy will listen on port 5684 for DTLS packets.
