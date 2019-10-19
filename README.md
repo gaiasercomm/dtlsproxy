@@ -15,3 +15,27 @@ sample usage:
     $ dtlsproxy -l 0.0.0.0:5684 -b 127.0.0.1:15683 -k Client_identity:secretPSK
 ```
 Tested on Cygwin and Ubuntu hosts with a [libcoap](https://github.com/obgm/libcoap) server (on port 15683) as the backend.
+
+**Docker use**
+---
+
+To build and push the Docker image on specific source tag:
+
+    TAG=v0.2 make docker-build
+
+    or
+
+    TAG=v0.2 make docker-push
+
+To build the Docker image:
+
+	docker build . -t dtlsproxy:latest
+
+The Docker image has an entrypoint script which makes easy to pass the PSK keys, without requiring the use of a volume. To do so, run:
+
+    docker run -e LISTEN=<host:port> \
+               -e BACKEND=<host1:port1,host2:port2,..> \
+               -e KEYS=<base64(id1:key1,id2:key2,...)> \
+               <extra dtlsproxy arguments>
+
+In general, proxy will listen on port 5683 for DTLS packets.
