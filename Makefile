@@ -12,6 +12,11 @@ DEFINES  :=
 CFLAGS   := $(INCLUDES) $(DEFINES) -Wall -O2 -g
 LFLAGS   := -L$(LIBDTLS_DIR) -ltinydtls -lev
 
+SRC_TAG = ${TAG}
+ifeq ("${SRC_TAG}","")
+SRC_TAG = master
+endif
+
 all: $(LIBDTLS) $(PROGRAM)
 
 $(PROGRAM): $(OBJECTS)
@@ -25,3 +30,9 @@ clean:
 
 clean-libs:
 	$(MAKE) -C $(LIBDTLS_DIR) clean
+
+docker-build:
+	docker build --build-arg SRC_TAG=${SRC_TAG} -t nbiotregistry.azurecr.io/${PROGRAM}:${SRC_TAG} .
+
+docker-push: docker-build
+	docker push nbiotregistry.azurecr.io/${PROGRAM}:${SRC_TAG}
