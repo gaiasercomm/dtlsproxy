@@ -1,0 +1,196 @@
+# In order to use Kubernetes as service registry. A POD must has permissions to patch, list and watch
+# pods resource.
+#
+# see description in Kubernetes of go-plugins
+---
+# ROLE of RBAC
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: micro-registry
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["patch", "list", "watch"]
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: micro-services
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: micro-registry
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: micro-registry
+subjects:
+- kind: ServiceAccount
+  name: micro-services
+  namespace: default
+
+---
+# APP DEPLOYMENT
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: iotbridge
+  name: iotbridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: iotbridge
+  template:
+    metadata:
+      labels:
+        run: iotbridge
+    spec:
+      serviceAccountName: micro-services
+      imagePullSecrets:
+      - name: nbiotregcred
+      containers:
+      # pull images from private registry, change the ip:port to the private registry.
+      - image: nbiotregistry.azurecr.io/iotbridge:cicd
+        imagePullPolicy: Always
+        name: iotbridge-grpc
+        env:
+        - name: STATIC_SELECTOR_PORT_NUMBER
+          value: "50051"
+        - name: MICRO_SERVER_ADDRESS
+          value: ":50051"
+        - name: TZ
+          value: "Asia/Taipei"
+        - name: CONF_REPO_URL
+          value: "neutral_dev_config:sercomm2483@122.116.67.86:10443/configuration/nbiot-cicd.git"
+        - name: CONF_BRANCH
+          value: "conf/iotbridge"
+        - name: MAGIC
+          value: "1"
+        ports:
+        - containerPort: 50051
+          protocol: TCP
+          name: ib-grpc
+        - containerPort: 5683
+          protocol: UDP
+          name: ib-coapudp
+        #- containerPort: 5684
+        #  protocol: UDP
+        #  name: ib-coapdtls
+        - containerPort: 5686
+          protocol: UDP
+          name: ib-test
+      - image: nbiotregistry.azurecr.io/iotbridge-rest:cicd
+        imagePullPolicy: Always
+        name: iotbridge-rest
+        ports:
+        - containerPort: 28080
+          protocol: TCP
+          name: ib-rest
+      - image: nbiotregistry.azurecr.io/dtlsproxy:v20191019
+        imagePullPolicy: Always
+        name: iotbridge-dtls
+        env:
+        - name: LISTEN
+          value: "0.0.0.0:5684"
+        - name: BACKEND
+          value: "localhost:5683"
+        - name: KEYS
+          value: "bmJpb3QtenVyaWNoLXRlc3Q6YWJpbGl0eTEyMw=="
+        ports:
+        - containerPort: 5684
+          protocol: UDP
+          name: ib-dtls
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: iotbridge-rest
+  labels:
+    run: iotbridge
+  annotations:
+    getambassador.io/config: |
+     ---
+      apiVersion: ambassador/v1
+      kind:  Mapping
+      name:  iotbridge_mapping
+      prefix: /gaia/iotbridge/v1/
+      rewrite: /gaia/iotbridge/v1/
+      service: iotbridge-rest
+spec:
+  type: ClusterIP
+  clusterIP: 10.0.8.27
+  ports:
+  - name: rest
+    protocol: TCP
+    port: 80
+    targetPort: ib-rest
+  selector:
+    run: iotbridge
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: iotbridge-grpc
+  labels:
+    run: iotbridge
+spec:
+  type: ClusterIP
+  ports:
+  - name: grpc
+    protocol: TCP
+    port: 50051
+    targetPort: ib-grpc
+  selector:
+    run: iotbridge
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: iotbridge-coapudp
+  labels:
+    run: iotbridge
+spec:
+  type: LoadBalancer
+  clusterIP: 10.0.8.28
+  loadBalancerIP: 13.67.52.125
+  ports:
+  - name: coap
+    protocol: UDP
+    port: 5683
+    targetPort: ib-coapudp
+  #- name: coapdtls
+  #  protocol: UDP
+  #  port: 5684
+  #  targetPort: ib-coapdtls
+  - name: coaptest
+    protocol: UDP
+    port: 5686
+    targetPort: ib-test
+  selector:
+    run: iotbridge
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: iotbridge-dtls
+  labels:
+    run: iotbridge
+spec:
+  type: LoadBalancer
+  clusterIP: 10.0.8.29
+  loadBalancerIP: 13.67.52.125
+  ports:
+  - name: dtls
+    protocol: UDP
+    port: 5684
+    targetPort: ib-dtls
+  selector:
+    run: iotbridge
