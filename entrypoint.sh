@@ -14,4 +14,8 @@ if [ -n "$KEYS" ]; then
     ARGS="$ARGS -k `echo $KEYS | base64 -d`"
 fi
 
+if [ -n "$LOG" ]; then
+    ARGS="$ARGS -g $LOG"
+fi
+
 /usr/local/bin/dtlsproxy $ARGS $*
