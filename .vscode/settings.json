@@ -1,5 +1,7 @@
 {
   "files.associations": {
-    "dtls_debug.h": "c"
+    "dtls_debug.h": "c",
+    "proxy.h": "c",
+    "string.h": "c"
   }
 }

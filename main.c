@@ -19,7 +19,8 @@ static void usage(const char *program)
         "usage: %s -l <host:port> -b <hosts:ports> -k <key maps>\n"
         "\t-l listen    listen on specified host and port\n"
         "\t-b backends  backend servers (host1:port1,host2:port2,...)\n"
-        "\t-k keys      psk identities (id1:key1,id2:key2,...)\n", program);
+        "\t-k keys      psk identities (id1:key1,id2:key2,...)\n"
+        "\t-g level     log level, one of EMRG, ALRT, CRIT, WARN, NOTE, INFO, DEBG\n", program);
     exit(1);
 }
 
@@ -42,7 +43,7 @@ static char *loglevels[] = {
 static void set_tinydtls_log_level(char *loglevel)
 {
     for (int i = 0; loglevel[0] && i < sizeof(loglevels); i++) {
-        if(!strcasecmp(loglevel, loglevels[i], sizeof(loglevels[i]))) {
+        if(!strcasecmp(loglevel, loglevels[i])) {
             dtls_set_log_level(i);
             break;
         }
