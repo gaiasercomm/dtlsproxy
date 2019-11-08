@@ -44,6 +44,6 @@ docker-build-local:
 		-f Dockerfile-local \
 		.
 
-docker-push: docker-build
+docker-push:
 	docker push \
 		nbiotregistry.azurecr.io/${PROGRAM}:${SRC_TAG}
