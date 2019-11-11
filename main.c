@@ -36,14 +36,16 @@ static void handle_sigint(int signum)
 }
 
 /* this array has the same order as the type log_t */
-static char *loglevels[] = {
+#define NUMBER_OF_LOG_LEVELS 7
+static char *loglevels[7] = {
   "EMRG", "ALRT", "CRIT", "WARN", "NOTE", "INFO", "DEBG" 
 };
 
 static void set_tinydtls_log_level(char *loglevel)
 {
-    for (int i = 0; loglevel[0] && i < sizeof(loglevels); i++) {
+    for (int i = 0; loglevel[0] && i < NUMBER_OF_LOG_LEVELS; i++) {
         if(!strcasecmp(loglevel, loglevels[i])) {
+            DBG("set tinydtls log level to %s", loglevels[i]);
             dtls_set_log_level(i);
             break;
         }
@@ -91,7 +93,6 @@ int main(int argc, char **argv)
             usage(argv[0]);
         }
     }
-
     set_tinydtls_log_level(log_level_buf);
 
     if (0!=proxy_init(&context,

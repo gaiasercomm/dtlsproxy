@@ -2,6 +2,10 @@
   "files.associations": {
     "dtls_debug.h": "c",
     "proxy.h": "c",
-    "string.h": "c"
+    "string.h": "c",
+    "keystore.h": "c",
+    "utils.h": "c",
+    "global.h": "c",
+    "tinydtls.h": "c"
   }
 }

@@ -29,4 +29,4 @@ COPY --from=builder /src/dtlsproxy /usr/local/bin/
 
 ADD entrypoint.sh /
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "-c", "/entrypoint.sh"]

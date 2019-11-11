@@ -6,8 +6,8 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#define DBG(fmt, ...)  fprintf(stdout, "%s[%d] " fmt "\n", __FILE__, __LINE__, ## __VA_ARGS__)
-#define ERR(fmt, ...)  fprintf(stderr, "%s[%d] ERR " fmt "\n", __FILE__, __LINE__, ## __VA_ARGS__)
+#define DBG(fmt, ...)  fprintf(stdout, "%s[%d] " fmt "\n", __FILE__, __LINE__, ## __VA_ARGS__); fflush(stdout)
+#define ERR(fmt, ...)  fprintf(stderr, "%s[%d] ERR " fmt "\n", __FILE__, __LINE__, ## __VA_ARGS__); fflush(stderr)
 
 void dumpbytes(uint8_t *buff, size_t len);
 
