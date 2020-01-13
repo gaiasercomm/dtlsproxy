@@ -557,6 +557,11 @@ static int
 hs_attempt_with_existing_peer(uint8_t *msg, size_t msglen,
     dtls_peer_t *peer)
 {
+    if (peer) {
+   	  dtls_info("hs attempt and peer founded with state %d\n", peer->state);
+      dtls_dsrv_log_addr(DTLS_LOG_INFO, "peer is ", &(peer->session));
+    }
+
     if ((peer) && (peer->state == DTLS_STATE_CONNECTED)) {
       if (msg[0] == DTLS_CT_HANDSHAKE) {
         uint16_t msg_epoch = dtls_uint16_to_int(DTLS_RECORD_HEADER(msg)->epoch);
@@ -571,6 +576,7 @@ hs_attempt_with_existing_peer(uint8_t *msg, size_t msglen,
     }
     return 0;
 }
+
 /** Dump out the cipher keys and IVs used for the symetric cipher. */
 static void dtls_debug_keyblock(dtls_security_parameters_t *config)
 {

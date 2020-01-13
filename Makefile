@@ -32,7 +32,18 @@ clean-libs:
 	$(MAKE) -C $(LIBDTLS_DIR) clean
 
 docker-build:
-	docker build --build-arg SRC_TAG=${SRC_TAG} -t nbiotregistry.azurecr.io/${PROGRAM}:${SRC_TAG} .
+	docker build \
+		--build-arg SRC_TAG=${SRC_TAG} \
+		-t nbiotregistry.azurecr.io/${PROGRAM}:${SRC_TAG} \
+		.
 
-docker-push: docker-build
-	docker push nbiotregistry.azurecr.io/${PROGRAM}:${SRC_TAG}
+docker-build-local:
+	docker build \
+		--build-arg SRC_TAG=${SRC_TAG} \
+		-t nbiotregistry.azurecr.io/${PROGRAM}:${SRC_TAG} \
+		-f Dockerfile-local \
+		.
+
+docker-push:
+	docker push \
+		nbiotregistry.azurecr.io/${PROGRAM}:${SRC_TAG}

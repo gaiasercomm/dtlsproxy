@@ -10,9 +10,8 @@ RUN apt-get update && apt-get install -y \
     libev-dev \
  && rm -rf /var/lib/apt/lists/*
 
-ARG SRC_TAG=master
 ARG SRC_DIR=/src
-RUN git clone https://github.com/gaiasercomm/dtlsproxy.git -b $SRC_TAG $SRC_DIR
+COPY ./ $SRC_DIR/
 WORKDIR $SRC_DIR
 
 RUN make
