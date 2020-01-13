@@ -3492,11 +3492,11 @@ handle_handshake(dtls_context_t *ctx, dtls_peer_t *peer, session_t *session,
       clock_time_t next = 0;
       dtls_check_retransmit(ctx, &next);
       if (next) {
-	dtls_warn("retransmitted last flight of messages on reading a retransmitted flight from the peer, expected %i, got: %i\n",
-			peer->handshake_params->hs_state.mseq_r, dtls_uint16_to_int(hs_header->message_seq));
+        dtls_warn("retransmitted last flight of messages on reading a retransmitted flight from the peer, expected %i, got: %i\n",
+                  peer->handshake_params->hs_state.mseq_r, dtls_uint16_to_int(hs_header->message_seq));
       } else {
-	dtls_warn("no flight of messages in buffer on reading a retransmitted flight from the peer, expected %i, got: %i\n",
-			peer->handshake_params->hs_state.mseq_r, dtls_uint16_to_int(hs_header->message_seq));
+        dtls_warn("no flight of messages in buffer on reading a retransmitted flight from the peer, expected %i, got: %i\n",
+                  peer->handshake_params->hs_state.mseq_r, dtls_uint16_to_int(hs_header->message_seq));
       }
     } else {
       dtls_warn("The message sequence number is too small, expected %i, got: %i\n",
