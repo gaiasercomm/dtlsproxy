@@ -3473,8 +3473,35 @@ handle_handshake(dtls_context_t *ctx, dtls_peer_t *peer, session_t *session,
   }
 
   if (dtls_uint16_to_int(hs_header->message_seq) < peer->handshake_params->hs_state.mseq_r) {
-    dtls_warn("The message sequence number is too small, expected %i, got: %i\n",
-	      peer->handshake_params->hs_state.mseq_r, dtls_uint16_to_int(hs_header->message_seq));
+    // LOUIS: we may reveived retransmited flight from remote peer.
+    /**
+     * We might need to send last flight of messages according to the description of  
+     * 4.2.4. Timeout and Retransmission in RFC6347.
+     * 
+     * There are three ways to exit the WAITING state:
+     * ...
+     * 2. The implementation reads a retransmitted flight from the peer: the
+     *    implementation transitions to the SENDING state, where it
+     *    retransmits the flight, resets the retransmit timer, and returns
+     *    to the WAITING state.  The rationale here is that the receipt of a
+     *    duplicate message is the likely result of timer expiry on the peer
+     *    and therefore suggests that part of one's previous flight was
+     *    lost.
+     */
+    if (dtls_uint16_to_int(hs_header->message_seq) == (peer->handshake_params->hs_state.mseq_r - 1)) {
+      clock_time_t next = 0;
+      dtls_check_retransmit(ctx, &next);
+      if (next) {
+        dtls_warn("retransmitted last flight of messages on reading a retransmitted flight from the peer, expected %i, got: %i\n",
+                  peer->handshake_params->hs_state.mseq_r, dtls_uint16_to_int(hs_header->message_seq));
+      } else {
+        dtls_warn("no flight of messages in buffer on reading a retransmitted flight from the peer, expected %i, got: %i\n",
+                  peer->handshake_params->hs_state.mseq_r, dtls_uint16_to_int(hs_header->message_seq));
+      }
+    } else {
+      dtls_warn("The message sequence number is too small, expected %i, got: %i\n",
+	        peer->handshake_params->hs_state.mseq_r, dtls_uint16_to_int(hs_header->message_seq));
+    }
     return 0;
   } else if (dtls_uint16_to_int(hs_header->message_seq) > peer->handshake_params->hs_state.mseq_r) {
     /* A packet in between is missing, buffer this packet. */

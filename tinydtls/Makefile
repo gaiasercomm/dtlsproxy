@@ -6,7 +6,8 @@ SOURCES := dtls.c crypto.c ccm.c hmac.c netq.c peer.c \
 			aes/rijndael.c ecc/ecc.c sha2/sha2.c
 OBJECTS := $(patsubst %.c, %.o, $(SOURCES))
 
-DEFINES  := -DNDEBUG -DDTLSv12 -DWITH_SHA256 -DDTLS_CHECK_CONTENTTYPE
+#DEFINES  := -DNDEBUG -DDTLSv12 -DWITH_SHA256 -DDTLS_CHECK_CONTENTTYPE
+DEFINES  := -DDTLSv12 -DWITH_SHA256 -DDTLS_CHECK_CONTENTTYPE
 CFLAGS   := -I. $(DEFINES) -Wall -pedantic -std=c99 -g -O2
 
 RANLIB  := ranlib
